@@ -43,7 +43,7 @@ print("                   ")
 LR_predictions = clf.predict(X.T)
 print('Accuracy of logistic regression : %d ' % float((np.dot(Y,LR_predictions) + np.dot(1-Y,1-LR_predictions))/float(Y.size)*100) + '% ' + "(percentage of correctly labelled datapoints)")
 
-def layer_sizes(X, Y, hidden):
+def layer_sizes(X, Y, hidden=4):
     """
     Arguments:
     X -- input dataset of shape (input size, number of examples)
@@ -160,6 +160,177 @@ cost = compute_cost(A2, Y)
 print("                   ")
 print("cost = " + str(compute_cost(A2, Y)))
 
+def backward_propagation(parameters, cache, X, Y):
+    """
+    Implement the backward propagation using the instructions above.
+    
+    Arguments:
+    parameters -- python dictionary containing our parameters 
+    cache -- a dictionary containing "Z1", "A1", "Z2" and "A2".
+    X -- input data of shape (2, number of examples)
+    Y -- "true" labels vector of shape (1, number of examples)
+    
+    Returns:
+    grads -- python dictionary containing your gradients with respect to different parameters
+    """
+    m = X.shape[1]
+
+    # Retrieve W1 and W2
+    W1 = parameters["W1"]
+    W2 = parameters["W2"]
+
+    # Retrieve A1 and A2
+    A1 = cache["A1"]
+    A2 = cache["A2"]
+
+    # Back propagation: calculate dW1, db1, dW2, db2
+    dZ2 = A2 - Y
+    dW2 = np.dot(dZ2, A1.T)/m
+    db2 = np.sum(dZ2, axis=1, keepdims=True)/m
+
+    dZ1 = np.dot(W2.T, dZ2) * ( 1 - np.power(A1, 2))
+    dW1 = np.dot(dZ1, X.T)/m
+    db1 = np.sum(dZ1, axis=1, keepdims=True)/m
+
+    grads = {"dW1": dW1,
+             "db1": db1,
+             "dW2": dW2,
+             "db2": db2}
+
+    return grads
+
+grads = backward_propagation(parameters, cache, X, Y)
+print("                   ")
+print ("dW1 = "+ str(grads["dW1"]))
+print ("db1 = "+ str(grads["db1"]))
+print ("dW2 = "+ str(grads["dW2"]))
+print ("db2 = "+ str(grads["db2"]))
+
+def update_parameters(parameters, grads, learning_rate = 1.2):
+    """
+    Updates parameters using the gradient descent update rule given above
+    
+    Arguments:
+    parameters -- python dictionary containing your parameters 
+    grads -- python dictionary containing your gradients 
+    
+    Returns:
+    parameters -- python dictionary containing your updated parameters 
+    """
+    # Retrieve a copy of each parameter from the dictionary "parameters". Use copy.deepcopy(...) for W1 and W2
+    W1 = copy.deepcopy(parameters["W1"])
+    b1 = parameters["b1"]
+    W2 = copy.deepcopy(parameters["W2"])
+    b2 = parameters["b2"]
+
+    # Retrieve each gradient from the dictionary "grads"
+    dW1 = copy.deepcopy(grads["dW1"])
+    db1 = grads["db1"]
+    dW2 = copy.deepcopy(grads["dW2"])
+    db2 = grads["db2"]
+
+    # Update rule for each parameter
+    W1 = W1 - learning_rate * dW1
+    b1 = b1 - learning_rate * db1
+    W2 = W2 - learning_rate * dW2
+    b2 = b2 - learning_rate * db2
+
+    parameters = {"W1": W1,
+                  "b1": b1,
+                  "W2": W2,
+                  "b2": b2}
+
+    return parameters
+
+parameters = update_parameters(parameters, grads)
+
+print("                   ")
+print("W1 = " + str(parameters["W1"]))
+print("b1 = " + str(parameters["b1"]))
+print("W2 = " + str(parameters["W2"]))
+print("b2 = " + str(parameters["b2"]))
+
+def nn_model(X, Y, n_h, num_iterations = 10000, print_cost=False):
+    """
+    Arguments:
+    X -- dataset of shape (2, number of examples)
+    Y -- labels of shape (1, number of examples)
+    n_h -- size of the hidden layer
+    num_iterations -- Number of iterations in gradient descent loop
+    print_cost -- if True, print the cost every 1000 iterations
+    
+    Returns:
+    parameters -- parameters learnt by the model. They can then be used to predict.
+    """
+    np.random.seed(3)
+
+    # Initialize parameters
+    parameters = initialize_parameters(n_x, n_h, n_y)
+
+    # Loop gradient descent
+    for i in range(0, num_iterations):
+        A2, cache = forward_propagation(X, parameters)
+        cost = compute_cost(A2, Y)
+        grads = backward_propagation(parameters, cache, X, Y)
+        parameters = update_parameters(parameters, grads)
+
+        # Print the cost every 1000 iterations
+        if print_cost and i % 1000 == 0:
+            print ("Cost after iteration %i: %f" %(i, cost))
+
+    return parameters
+
+def predict(parameters, X):
+    """
+    Using the learned parameters, predicts a class for each example in X
+
+    Arguments:
+    parameters -- python dictionary containing your parameters
+    X -- input data of size (n_x, m)
+
+    Returns
+    predictions -- vector of predictions of our model (red: 0 / blue: 1)
+    """
+    # Computes probabilities using forward propagation, and classifies to 0/1 using 0.5 as the threshold.
+    A2, cache = forward_propagation(X, parameters)
+    predictions = (A2 > 0.5)
+
+    return predictions
+
+predictions = predict(parameters, X)
+print("                   ")
+print("Predictions: " + str(predictions))
+
+# Build a model with a n_h-dimensional hidden layer
+parameters = nn_model(X, Y, n_h = 4, num_iterations = 10000, print_cost=True)
+
+# Plot the decision boundary
+plot_decision_boundary(lambda x: predict(parameters, x.T), X, Y)
+plt.title("Decision Boundary for hidden layer size " + str(4))
+
+# Print accuracy
+predictions = predict(parameters, X)
+print("                   ")
+print ('Accuracy: %d' % float((np.dot(Y, predictions.T) + np.dot(1 - Y, 1 - predictions.T)) / float(Y.size) * 100) + '%')
+
+# Tuning hidden layer size
+# This may take about 2 minutes to run
+
+plt.figure(figsize=(16, 32))
+hidden_layer_sizes = [1, 2, 3, 4, 5, 10, 20]
+
+# you can try with different hidden layer sizes
+# but make sure before you submit the assignment it is set as "hidden_layer_sizes = [1, 2, 3, 4, 5]"
+# hidden_layer_sizes = [1, 2, 3, 4, 5, 20, 50]
+
+for i, n_h in enumerate(hidden_layer_sizes):
+    plt.subplot(5, 2, i+1)
+    plt.title('Hidden Layer of size %d' % n_h)
+    parameters = nn_model(X, Y, n_h, num_iterations = 5000)
+    plot_decision_boundary(lambda x: predict(parameters, x.T), X, Y)
+    predictions = predict(parameters, X)
+    accuracy = float((np.dot(Y,predictions.T) + np.dot(1 - Y, 1 - predictions.T)) / float(Y.size)*100)
+    print ("Accuracy for {} hidden units: {} %".format(n_h, accuracy))
 
 
 
