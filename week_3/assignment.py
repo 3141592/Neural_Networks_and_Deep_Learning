@@ -317,7 +317,7 @@ print ('Accuracy: %d' % float((np.dot(Y, predictions.T) + np.dot(1 - Y, 1 - pred
 # This may take about 2 minutes to run
 
 plt.figure(figsize=(16, 32))
-hidden_layer_sizes = [1, 2, 3, 4, 5, 10, 20]
+hidden_layer_sizes = [1, 2, 3, 4, 5, 10, 20, 100]
 
 # you can try with different hidden layer sizes
 # but make sure before you submit the assignment it is set as "hidden_layer_sizes = [1, 2, 3, 4, 5]"
