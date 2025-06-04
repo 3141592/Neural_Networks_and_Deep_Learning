@@ -12,12 +12,12 @@ from planar_utils import plot_decision_boundary, sigmoid, load_planar_dataset, l
 X, Y = load_planar_dataset()
 
 print("                   ")
-# Visualize data
+# STEP 1 Visualize data
 plt.scatter(X[0, :], X[1, :], c=Y, s=40, cmap=plt.cm.Spectral);
 #plt.show()
 
 print("                   ")
-# How many training examples are there?
+# STEP 2 How many training examples are there?
 shape_X = X.shape
 shape_Y = Y.shape
 m = shape_X[1]
@@ -43,6 +43,7 @@ print("                   ")
 LR_predictions = clf.predict(X.T)
 print('Accuracy of logistic regression : %d ' % float((np.dot(Y,LR_predictions) + np.dot(1-Y,1-LR_predictions))/float(Y.size)*100) + '% ' + "(percentage of correctly labelled datapoints)")
 
+# STEP 3 Layer Sizes
 def layer_sizes(X, Y, hidden=4):
     """
     Arguments:
@@ -67,6 +68,7 @@ print("The size of the input layer is: n_x = " + str(n_x))
 print("The size of the hidden layer is: n_h = " + str(n_h))
 print("The size of the output layer is: n_y = " + str(n_y))
 
+# STEP 4 Initialize
 def initialize_parameters(n_x, n_h, n_y):
     """
     Argument:
@@ -103,6 +105,7 @@ print("b1 = " + str(parameters["b1"]))
 print("W2 = " + str(parameters["W2"]))
 print("b2 = " + str(parameters["b2"]))
 
+# STEP 5 Forward Propagation
 def forward_propagation(X, parameters):
     """
     Argument:
@@ -138,6 +141,7 @@ A2, cache = forward_propagation(X, parameters)
 print("                   ")
 print("A2 = " + str(A2))
 
+# STEP 6 Compute cost
 def compute_cost(A2, Y):
     """
     Computes the cross-entropy cost
@@ -160,6 +164,7 @@ cost = compute_cost(A2, Y)
 print("                   ")
 print("cost = " + str(compute_cost(A2, Y)))
 
+# STEP 7 Backward propagation
 def backward_propagation(parameters, cache, X, Y):
     """
     Implement the backward propagation using the instructions above.
@@ -206,6 +211,7 @@ print ("db1 = "+ str(grads["db1"]))
 print ("dW2 = "+ str(grads["dW2"]))
 print ("db2 = "+ str(grads["db2"]))
 
+# STEP 8 Gradient descent
 def update_parameters(parameters, grads, learning_rate = 1.2):
     """
     Updates parameters using the gradient descent update rule given above
@@ -250,6 +256,7 @@ print("b1 = " + str(parameters["b1"]))
 print("W2 = " + str(parameters["W2"]))
 print("b2 = " + str(parameters["b2"]))
 
+# STEP 9 Create model
 def nn_model(X, Y, n_h, num_iterations = 10000, print_cost=False):
     """
     Arguments:
@@ -280,6 +287,7 @@ def nn_model(X, Y, n_h, num_iterations = 10000, print_cost=False):
 
     return parameters
 
+# STEP 10 Predict
 def predict(parameters, X):
     """
     Using the learned parameters, predicts a class for each example in X
